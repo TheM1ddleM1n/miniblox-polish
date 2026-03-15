@@ -16,7 +16,7 @@
 ## ⚡ Install
 
 1. Install [Tampermonkey](https://www.tampermonkey.net/)
-2. Click **[→ Install Miniblox Polish](#)** *(paste your raw GitHub URL here)*
+2. Click **[→ Install Miniblox Polish](https://raw.githubusercontent.com/TheM1ddleM1n/miniblox-polish/refs/heads/main/polish.js)**
 3. Open [Miniblox.io](https://miniblox.io) and enjoy
 
 ---
