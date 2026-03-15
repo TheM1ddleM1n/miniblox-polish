@@ -18,7 +18,7 @@
     'Tip: Crouch to reduce your hitbox in fights.',
     'Tip: Sprint jumping is faster than walking.',
     'Tip: High ground gives you a combat advantage.',
-    'Tip: Watch your ping — under 80ms is ideal.',
+    'Tip: Watch your ping — under 200ms is ideal.',
     'Tip: Strafe left and right to dodge shots.',
     'Tip: Block placement is faster when you pre-aim.',
     'Tip: Land your first hit to set the pace of a fight.',
