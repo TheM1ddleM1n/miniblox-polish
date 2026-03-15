@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Miniblox - Full Polish
 // @namespace    https://github.com/
-// @version      1.3
+// @version      1.4
 // @description  Custom loading screen, no snowflakes, no party, no Discord, spaced nav
 // @match        https://miniblox.io/
 // @run-at       document-start
