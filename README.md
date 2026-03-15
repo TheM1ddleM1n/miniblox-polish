@@ -3,7 +3,7 @@
 # ✨ Miniblox Polish
 ### A lightweight Tampermonkey enhancement suite for Miniblox.io
 
-![Version](https://img.shields.io/badge/version-1.3-00ff41?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.4-00ff41?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-00ff41?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-Miniblox.io-00ff41?style=for-the-badge)
 
@@ -43,7 +43,7 @@
 
 ## 📝 Changelog
 
-### [1.3] — Nav Spacing
+### [1.4] — Nav Spacing
 - Nav buttons now spaced via JS sweep instead of CSS, so it survives React re-renders
 
 ### [1.2] — Nav Spacing (CSS)
