@@ -81,6 +81,4 @@ moment React updates the DOM. Party invites are blocked at the RPC level by patc
 
 <div align="center">
 
-✨ **MIT License** — fork it, break it, improve it
-
 </div>
