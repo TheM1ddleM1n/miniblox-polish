@@ -3,7 +3,7 @@
 # ✨ Miniblox Polish
 ### A lightweight Tampermonkey enhancement suite for Miniblox.io
 
-![Version](https://img.shields.io/badge/version-1.4-00ff41?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.6-00ff41?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-00ff41?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-Miniblox.io-00ff41?style=for-the-badge)
 
@@ -43,8 +43,22 @@
 
 ## 📝 Changelog
 
+### [1.6] — Snowflake Fix
+- Rewrote snowflake detection to target `p.chakra-text` elements directly instead of scanning all DOM nodes — more reliable and far cheaper
+
+### [1.5] — Performance & Bug Fixes
+- Fixed `patchInterval` not stopping after a successful party patch
+- Narrowed snowflake selector from `*` to `canvas, span, div` to reduce per-sweep DOM cost
+- Replaced noisy `characterData` MutationObserver on `document.body` with a lightweight 1s poll for version detection
+- Reduced sweep interval from 100ms to 1000ms — MutationObserver handles DOM changes; interval only covers time-based drift
+- `waitForGame` now reuses `getGame` instead of duplicating fiber traversal logic
+- `inner.innerHTML` converted from array join to template literal
+
 ### [1.4] — Nav Spacing
 - Nav buttons now spaced via JS sweep instead of CSS, so it survives React re-renders
+
+### [1.3] — Party Patch Reliability
+- Party RPC patch now retries on a 2s interval up to 60 attempts to handle late game object availability
 
 ### [1.2] — Nav Spacing (CSS)
 - Added margin between left sidebar nav buttons
@@ -64,7 +78,7 @@
 ## 🛠️ How it works
 
 Miniblox is built on React with Chakra UI. Standard CSS tweaks get wiped on re-render, so
-everything here uses a `MutationObserver` + 100ms sweep interval to re-apply changes the
+everything here uses a `MutationObserver` + 1s sweep interval to re-apply changes the
 moment React updates the DOM. Party invites are blocked at the RPC level by patching
 `game.party.invoke` directly on the game object exposed via the React fiber tree.
 
