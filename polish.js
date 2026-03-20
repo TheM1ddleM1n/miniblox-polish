@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Miniblox - Full Polish
 // @namespace    https://github.com/
-// @version      1.4
+// @version      1.6
 // @description  Custom loading screen, no snowflakes, no party, no Discord, spaced nav
 // @match        https://miniblox.io/
 // @run-at       document-start
@@ -209,7 +209,7 @@ a[href*="discord.gg"] { display: none !important; }
     { pct: 44, label: 'LOADING AUDIO...',        delay: 700 },
     { pct: 52, label: 'BUILDING WORLD...',       delay: 900 },
     { pct: 60, label: 'SPAWNING ENTITIES...',    delay: 800 },
-    { pct: 67, label: 'CONNECTING TO SERVER...',  delay: 700 },
+    { pct: 67, label: 'CONNECTING TO SERVER...', delay: 700 },
     { pct: 74, label: 'SYNCING PLAYER DATA...',  delay: 800 },
     { pct: 80, label: 'APPLYING SETTINGS...',    delay: 600 },
     { pct: 85, label: 'ALMOST READY...',         delay: 500 },
@@ -243,26 +243,11 @@ a[href*="discord.gg"] { display: none !important; }
   }
 
   // ─── Snowflakes ───────────────────────────────────────────────────────────────
-  const SNOW_CHARS = new Set(['❄', '❅', '❆', '*', '✦', '·', '•']);
-
   function hideSnowflakes() {
     if (!document.body) return;
-    document.querySelectorAll('*').forEach(el => {
-      if (el.children.length > 0) return;
-      const text = el.textContent.trim();
-      if (!SNOW_CHARS.has(text)) return;
-      const s = window.getComputedStyle(el);
-      if (s.position === 'absolute' || s.position === 'fixed') {
+    document.querySelectorAll('p.chakra-text').forEach(el => {
+      if (el.textContent.trim() === '❅') {
         el.style.setProperty('display', 'none', 'important');
-      }
-    });
-    document.querySelectorAll('canvas').forEach(c => {
-      if (
-        c.id?.toLowerCase().includes('snow') ||
-        c.className?.toLowerCase().includes('snow') ||
-        (c.width < 5 && c.height < 5)
-      ) {
-        c.style.setProperty('display', 'none', 'important');
       }
     });
   }
@@ -332,8 +317,7 @@ a[href*="discord.gg"] { display: none !important; }
     return new Promise(resolve => {
       const check = setInterval(() => {
         try {
-          const fiber = Object.values(document.querySelector('#react') ?? {})?.[0];
-          const game = fiber?.updateQueue?.baseState?.element?.props?.game;
+          const game = getGame();
           if (game?.resourceMonitor && game?.player) {
             clearInterval(check);
             resolve();
@@ -360,26 +344,25 @@ a[href*="discord.gg"] { display: none !important; }
 
     const inner = document.createElement('div');
     inner.id = 'mb-loader-inner';
-    inner.innerHTML = [
-      '<div id="mb-logo">MINI<span>BLOX</span></div>',
-      '<div id="mb-tagline">Enhanced by TheM1ddleM1n</div>',
-      '<div id="mb-bar-wrap"><div id="mb-bar"></div></div>',
-      '<div id="mb-status">BOOTING...</div>',
-      '<div id="mb-tip"></div>',
-    ].join('');
+    inner.innerHTML = `
+      <div id="mb-logo">MINI<span>BLOX</span></div>
+      <div id="mb-tagline">Enhanced by TheM1ddleM1n</div>
+      <div id="mb-bar-wrap"><div id="mb-bar"></div></div>
+      <div id="mb-status">BOOTING...</div>
+      <div id="mb-tip"></div>
+    `;
 
     const version = document.createElement('div');
     version.id = 'mb-version';
     version.textContent = 'v?.??.??';
 
-    const versionObserver = new MutationObserver(() => {
+    const versionInterval = setInterval(() => {
       const match = document.body.innerText.match(/Miniblox\s+(v[\d.]+)/i);
       if (match) {
         version.textContent = match[1];
-        versionObserver.disconnect();
+        clearInterval(versionInterval);
       }
-    });
-    versionObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
+    }, 1000);
 
     loader.append(canvas, inner, version);
     document.body.prepend(loader);
@@ -391,7 +374,7 @@ a[href*="discord.gg"] { display: none !important; }
     const matrixInterval = startMatrixRain(canvas);
     const tipInterval = startTips(tipEl);
 
-    const sweepInterval = setInterval(runAllSweeps, 100);
+    const sweepInterval = setInterval(runAllSweeps, 1000);
     const domObserver = new MutationObserver(runAllSweeps);
     domObserver.observe(document.body, { childList: true, subtree: true });
     runAllSweeps();
@@ -406,6 +389,7 @@ a[href*="discord.gg"] { display: none !important; }
           clearInterval(matrixInterval);
           clearInterval(tipInterval);
           clearInterval(sweepInterval);
+          clearInterval(versionInterval);
           runAllSweeps();
         }, 650);
       }, 400);
@@ -416,8 +400,9 @@ a[href*="discord.gg"] { display: none !important; }
 
   // ─── Party RPC poll ───────────────────────────────────────────────────────────
   const patchInterval = setInterval(() => {
-    if (++patchAttempts > MAX_PATCH_ATTEMPTS) { clearInterval(patchInterval); return; }
-    applyPartyPatch();
+    if (++patchAttempts > MAX_PATCH_ATTEMPTS || applyPartyPatch()) {
+      clearInterval(patchInterval);
+    }
   }, 2000);
 
   // ─── Boot ─────────────────────────────────────────────────────────────────────
