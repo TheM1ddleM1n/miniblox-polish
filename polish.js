@@ -201,19 +201,19 @@ a[href*="discord.gg"] { display: none !important; }
 
   // ─── Loading stages ───────────────────────────────────────────────────────────
   const STAGES = [
-    { pct: 5,  label: 'BOOTING...',              delay: 400 },
-    { pct: 12, label: 'CHECKING INTEGRITY...',   delay: 700 },
-    { pct: 20, label: 'LOADING CORE...',         delay: 600 },
-    { pct: 28, label: 'LOADING ASSETS...',       delay: 800 },
-    { pct: 36, label: 'LOADING TEXTURES...',     delay: 900 },
-    { pct: 44, label: 'LOADING AUDIO...',        delay: 700 },
-    { pct: 52, label: 'BUILDING WORLD...',       delay: 900 },
-    { pct: 60, label: 'SPAWNING ENTITIES...',    delay: 800 },
+    { pct: 5, label: 'BOOTING...', delay: 400 },
+    { pct: 12, label: 'CHECKING INTEGRITY...', delay: 700 },
+    { pct: 20, label: 'LOADING CORE...', delay: 600 },
+    { pct: 28, label: 'LOADING ASSETS...', delay: 800 },
+    { pct: 36, label: 'LOADING TEXTURES...', delay: 900 },
+    { pct: 44, label: 'LOADING AUDIO...', delay: 700 },
+    { pct: 52, label: 'BUILDING WORLD...', delay: 900 },
+    { pct: 60, label: 'SPAWNING ENTITIES...', delay: 800 },
     { pct: 67, label: 'CONNECTING TO SERVER...', delay: 700 },
-    { pct: 74, label: 'SYNCING PLAYER DATA...',  delay: 800 },
-    { pct: 80, label: 'APPLYING SETTINGS...',    delay: 600 },
-    { pct: 85, label: 'ALMOST READY...',         delay: 500 },
-    { pct: 90, label: 'WAITING FOR GAME...',     delay: 400 },
+    { pct: 74, label: 'SYNCING PLAYER DATA...', delay: 800 },
+    { pct: 80, label: 'APPLYING SETTINGS...', delay: 600 },
+    { pct: 85, label: 'ALMOST READY...', delay: 500 },
+    { pct: 90, label: 'WAITING FOR GAME...', delay: 400 },
   ];
 
   function setBar(bar, statusEl, pct, label) {
