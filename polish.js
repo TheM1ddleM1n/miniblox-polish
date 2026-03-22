@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Miniblox - Full Polish
 // @namespace    https://github.com/
-// @version      1.6
-// @description  Custom loading screen, no snowflakes, no party, no Discord, spaced nav
-// @match        https://miniblox.io/
+// @version      1.9
+// @description  Custom loading screen, no snowflakes, no party, no Discord, spaced nav, custom wallpaper
+// @match        https://miniblox.io/*
 // @run-at       document-start
 // ==/UserScript==
 
@@ -12,6 +12,8 @@
 
   const BLOCKED_METHODS = new Set(['inviteToParty', 'requestToJoinParty']);
   const MAX_PATCH_ATTEMPTS = 60;
+  const WALLPAPER_URL = 'https://wallpapers.com/images/hd/coding-background-9izlympnd0ovmpli.jpg';
+  const SCRIPT_VERSION = 'v1.9';
   let patchAttempts = 0;
 
   const TIPS = [
@@ -46,6 +48,22 @@
     'Tip: Review your losses — they teach more than wins.',
     'Tip: Consistency beats flashy plays in the long run.',
   ];
+
+  for (let i = TIPS.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [TIPS[i], TIPS[j]] = [TIPS[j], TIPS[i]];
+  }
+
+  const CURSOR_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cline x1='16' y1='2' x2='16' y2='14' stroke='%2300ff41' stroke-width='1.5'/%3E%3Cline x1='16' y1='18' x2='16' y2='30' stroke='%2300ff41' stroke-width='1.5'/%3E%3Cline x1='2' y1='16' x2='14' y2='16' stroke='%2300ff41' stroke-width='1.5'/%3E%3Cline x1='18' y1='16' x2='30' y2='16' stroke='%2300ff41' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='none' stroke='%2300ff41' stroke-width='1.5'/%3E%3C/svg%3E";
+
+  const PERSISTENT_STYLE = `
+@keyframes mb-nav-pulse {
+  0%, 100% { box-shadow: 0 0 4px 1px rgba(255,0,0,0.6); }
+  50% { box-shadow: 0 0 12px 3px rgba(255,0,0,1); }
+}
+
+body *:not(canvas) { cursor: url("${CURSOR_SVG}") 16 16, crosshair; }
+`;
 
   const STYLE = `
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
@@ -91,10 +109,26 @@
   color: #00ff41;
   text-shadow: 0 0 18px #00ff41, 0 0 40px rgba(0,255,65,0.3);
   text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
 }
 
 #mb-logo span {
   color: #00cc33;
+}
+
+#mb-logo.glitch {
+  animation: mb-glitch 0.6s steps(2) forwards;
+}
+
+@keyframes mb-glitch {
+  0%   { transform: translate(0,0) skewX(0deg); color: #00ff41; text-shadow: 0 0 18px #00ff41; }
+  15%  { transform: translate(-4px,2px) skewX(-8deg); color: #ff0040; text-shadow: 3px 0 0 #00ff41, -3px 0 0 #ff0040; }
+  30%  { transform: translate(4px,-2px) skewX(8deg); color: #00ff41; text-shadow: -3px 0 0 #ff0040, 3px 0 0 #00ffff; }
+  45%  { transform: translate(-3px,1px) skewX(-4deg); color: #00ffff; text-shadow: 3px 0 0 #ff0040; }
+  60%  { transform: translate(3px,-1px) skewX(4deg); color: #ff0040; text-shadow: -3px 0 0 #00ffff; }
+  75%  { transform: translate(-2px,2px) skewX(-2deg); color: #00ff41; text-shadow: 0 0 18px #00ff41; }
+  100% { transform: translate(0,0) skewX(0deg); color: #00ff41; text-shadow: 0 0 18px #00ff41; }
 }
 
 #mb-tagline {
@@ -168,7 +202,6 @@ img[src*="discord"],
 a[href*="discord.gg"] { display: none !important; }
 `;
 
-  // ─── Matrix rain ──────────────────────────────────────────────────────────────
   function startMatrixRain(canvas) {
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
@@ -199,7 +232,6 @@ a[href*="discord.gg"] { display: none !important; }
     return setInterval(draw, 45);
   }
 
-  // ─── Loading stages ───────────────────────────────────────────────────────────
   const STAGES = [
     { pct: 5, label: 'BOOTING...', delay: 400 },
     { pct: 12, label: 'CHECKING INTEGRITY...', delay: 700 },
@@ -228,21 +260,73 @@ a[href*="discord.gg"] { display: none !important; }
     }
   }
 
-  // ─── Tip rotator ──────────────────────────────────────────────────────────────
   function startTips(tipEl) {
-    let idx = Math.floor(Math.random() * TIPS.length);
+    let idx = 0;
     tipEl.textContent = TIPS[idx];
     return setInterval(() => {
       tipEl.classList.add('hidden');
       setTimeout(() => {
-        idx = (idx + 1) % TIPS.length;
+        idx = Math.floor(Math.random() * TIPS.length);
         tipEl.textContent = TIPS[idx];
         tipEl.classList.remove('hidden');
       }, 420);
     }, 4000);
   }
 
-  // ─── Snowflakes ───────────────────────────────────────────────────────────────
+  function initKonamiEasterEgg() {
+    const CODE = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+    let pos = 0;
+    document.addEventListener('keydown', e => {
+      if (e.key === CODE[pos]) {
+        pos++;
+        if (pos === CODE.length) {
+          pos = 0;
+          const msg = document.createElement('div');
+          msg.textContent = '> YOU FOUND THE SECRET. NICE. <';
+          msg.style.cssText = [
+            'position:fixed',
+            'bottom:40px',
+            'left:50%',
+            'transform:translateX(-50%)',
+            'z-index:9999999',
+            'font-family:Share Tech Mono,monospace',
+            'font-size:0.75rem',
+            'color:#00ff41',
+            'letter-spacing:3px',
+            'text-shadow:0 0 10px #00ff41',
+            'pointer-events:none',
+            'transition:opacity 0.6s ease',
+          ].join(';');
+          document.body.appendChild(msg);
+          setTimeout(() => { msg.style.opacity = '0'; }, 2500);
+          setTimeout(() => { msg.remove(); }, 3200);
+        }
+      } else {
+        pos = 0;
+      }
+    });
+  }
+
+  function initLogoEasterEgg(logoEl) {
+    let clicks = 0;
+    let resetTimer = null;
+    logoEl.addEventListener('click', () => {
+      clicks++;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => { clicks = 0; }, 2000);
+      if (clicks >= 5) {
+        clicks = 0;
+        clearTimeout(resetTimer);
+        logoEl.classList.remove('glitch');
+        void logoEl.offsetWidth;
+        logoEl.classList.add('glitch');
+        logoEl.addEventListener('animationend', () => {
+          logoEl.classList.remove('glitch');
+        }, { once: true });
+      }
+    });
+  }
+
   function hideSnowflakes() {
     if (!document.body) return;
     document.querySelectorAll('p.chakra-text').forEach(el => {
@@ -252,18 +336,18 @@ a[href*="discord.gg"] { display: none !important; }
     });
   }
 
-  // ─── Nav button spacing ───────────────────────────────────────────────────────
   const NAV_LABELS = new Set(['Settings', 'Friends', 'Shop', 'Rankings', 'Contact']);
 
   function spaceNavButtons() {
     document.querySelectorAll('button, a').forEach(el => {
       if (NAV_LABELS.has(el.textContent.trim())) {
         el.style.setProperty('margin-bottom', '10px', 'important');
+        el.style.setProperty('border', '1px solid red', 'important');
+        el.style.setProperty('animation', 'mb-nav-pulse 1.5s ease-in-out infinite', 'important');
       }
     });
   }
 
-  // ─── Party button + Discord sweeps ───────────────────────────────────────────
   function hidePartyButton() {
     document.querySelectorAll('button, a').forEach(el => {
       if (el.textContent.trim() === 'Party') {
@@ -283,14 +367,51 @@ a[href*="discord.gg"] { display: none !important; }
     });
   }
 
+  let wallpaperStyleEl = null;
+
+  function swapWallpaper() {
+    if (!wallpaperStyleEl || !document.head.contains(wallpaperStyleEl)) {
+      wallpaperStyleEl = document.createElement('style');
+      wallpaperStyleEl.textContent = [
+        `img[src*="default-"],`,
+        `img[class*="background"],`,
+        `img[class*="wallpaper"],`,
+        `img[class*="bg-"] { content: url(${WALLPAPER_URL}) !important; }`,
+      ].join('\n');
+      document.head.appendChild(wallpaperStyleEl);
+    }
+    document.querySelectorAll('img').forEach(img => {
+      if (
+        img.src.includes('default-') ||
+        img.className.includes('background') ||
+        img.className.includes('wallpaper') ||
+        img.className.includes('bg-')
+      ) {
+        img.src = WALLPAPER_URL;
+      }
+    });
+    document.querySelectorAll('[style*="background-image"]').forEach(el => {
+      if (el.style.backgroundImage.includes('default-')) {
+        el.style.setProperty('background-image', `url(${WALLPAPER_URL})`, 'important');
+      }
+    });
+  }
+
+  let sweepDebounceTimer = null;
+
   function runAllSweeps() {
     hidePartyButton();
     hideDiscord();
     hideSnowflakes();
     spaceNavButtons();
+    swapWallpaper();
   }
 
-  // ─── Party RPC patch ──────────────────────────────────────────────────────────
+  function debouncedSweep() {
+    clearTimeout(sweepDebounceTimer);
+    sweepDebounceTimer = setTimeout(runAllSweeps, 150);
+  }
+
   function getGame() {
     try {
       const fiber = Object.values(document.querySelector('#react') ?? {})?.[0];
@@ -308,11 +429,9 @@ a[href*="discord.gg"] { display: none !important; }
       return original(method, ...args);
     };
     game.party._blockRqPatched = true;
-    console.log('[FullPolish] Party patch applied.');
     return true;
   }
 
-  // ─── Game ready detection ─────────────────────────────────────────────────────
   function waitForGame() {
     return new Promise(resolve => {
       const check = setInterval(() => {
@@ -324,13 +443,20 @@ a[href*="discord.gg"] { display: none !important; }
           }
         } catch (_) {}
       }, 300);
-      setTimeout(() => { clearInterval(check); resolve(); }, 20000);
+      setTimeout(() => {
+        clearInterval(check);
+        console.warn('[FullPolish] waitForGame timed out — game object never found.');
+        resolve();
+      }, 20000);
     });
   }
 
-  // ─── Build & mount ────────────────────────────────────────────────────────────
   function mount() {
     if (!document.body) return false;
+
+    const persistentStyleEl = document.createElement('style');
+    persistentStyleEl.textContent = PERSISTENT_STYLE;
+    document.head.appendChild(persistentStyleEl);
 
     const styleEl = document.createElement('style');
     styleEl.textContent = STYLE;
@@ -354,7 +480,7 @@ a[href*="discord.gg"] { display: none !important; }
 
     const version = document.createElement('div');
     version.id = 'mb-version';
-    version.textContent = 'v?.??.??';
+    version.textContent = SCRIPT_VERSION;
 
     const versionInterval = setInterval(() => {
       const match = document.body.innerText.match(/Miniblox\s+(v[\d.]+)/i);
@@ -370,17 +496,25 @@ a[href*="discord.gg"] { display: none !important; }
     const bar = document.getElementById('mb-bar');
     const statusEl = document.getElementById('mb-status');
     const tipEl = document.getElementById('mb-tip');
+    const logoEl = document.getElementById('mb-logo');
 
     const matrixInterval = startMatrixRain(canvas);
     const tipInterval = startTips(tipEl);
 
-    const sweepInterval = setInterval(runAllSweeps, 1000);
-    const domObserver = new MutationObserver(runAllSweeps);
+    let sweepInterval = setInterval(runAllSweeps, 1000);
+    const domObserver = new MutationObserver(() => {
+      swapWallpaper();
+      debouncedSweep();
+    });
     domObserver.observe(document.body, { childList: true, subtree: true });
     runAllSweeps();
 
+    initLogoEasterEgg(logoEl);
+
     runStages(bar, statusEl).then(() => waitForGame()).then(() => {
       setBar(bar, statusEl, 100, 'READY! Welcome Player!');
+      clearInterval(sweepInterval);
+      sweepInterval = setInterval(runAllSweeps, 5000);
       setTimeout(() => {
         loader.classList.add('fade-out');
         setTimeout(() => {
@@ -395,17 +529,16 @@ a[href*="discord.gg"] { display: none !important; }
       }, 400);
     });
 
+    initKonamiEasterEgg();
     return true;
   }
 
-  // ─── Party RPC poll ───────────────────────────────────────────────────────────
   const patchInterval = setInterval(() => {
     if (++patchAttempts > MAX_PATCH_ATTEMPTS || applyPartyPatch()) {
       clearInterval(patchInterval);
     }
   }, 2000);
 
-  // ─── Boot ─────────────────────────────────────────────────────────────────────
   const bootInterval = setInterval(() => {
     if (document.body && mount()) clearInterval(bootInterval);
   }, 50);
