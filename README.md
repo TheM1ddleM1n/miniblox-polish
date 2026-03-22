@@ -43,6 +43,9 @@
 
 ## 📝 Changelog
 
+### [1.9] - things lol
+- lol
+
 ### [1.6] — Snowflake Fix
 - Rewrote snowflake detection to target `p.chakra-text` elements directly instead of scanning all DOM nodes — more reliable and far cheaper
 
